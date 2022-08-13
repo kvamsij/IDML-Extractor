@@ -4,6 +4,7 @@ on: pull_request
 
 jobs:
   build:
+    name: Run build ⚙️
     runs-on: ubuntu-latest
 
     steps:
@@ -12,26 +13,21 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      - run: npm ci
+      - run: npx eslint .
+      - run: npm test
 
   run-linter:
+      name: Run Linter ✅
       needs: build
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
-        - name: Running linter using eslint
-        - run: eslint .
+        - run: node --version
 
   run-tests:
+      name: Run Test 🚨
       needs: build
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
-        - name: Running jest tests
-        - run: npm test
+        - run: node -v

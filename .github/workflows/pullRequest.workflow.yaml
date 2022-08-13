@@ -27,6 +27,7 @@ jobs:
       needs: run-linter
       runs-on: ubuntu-latest
       steps:
+        - uses: actions/checkout@v3
         - uses: stefanoeb/jest-action@1.0.3
           with:
             jestArgs: src/__tests__/

@@ -3,31 +3,23 @@ name: Linting and Test
 on: pull_request
 
 jobs:
-  build:
-    name: Run build ⚙️
+  set-up:
+    name: 📋 Pull Request Checklist
     runs-on: ubuntu-latest
 
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-node@v3
+      - name: Checkout 
+        uses: actions/checkout@v3
+
+      - name: Node Set up ⚙️
+        uses: actions/setup-node@v3
         with:
           node-version: 16
-      - run: npm install
-      - run: npx eslint .
-      - run: npm test
+      - name: Install Packages
+        run: npm install
 
-  run-linter:
-      name: Run Linter ✅
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - run: node --version
+      - name: Run ESLint ✅
+        run: npx eslint .
 
-  run-tests:
-      name: Run Test 🚨
-      needs: build
-      runs-on: ubuntu-latest
-      steps:
-        - uses: actions/checkout@v3
-        - run: node -v
+      - name: Run Test 🚨
+        run: npm test

@@ -26,4 +26,4 @@ jobs:
       steps:
         - uses: stefanoeb/jest-action@1.0.3
           with:
-            jestArgs: src/__test__/*
+            jestArgs: src/__tests__/

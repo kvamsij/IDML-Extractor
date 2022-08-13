@@ -17,8 +17,3 @@ describe('Testing concat', () => {
     expect(typeof result === 'string').toBeTruthy();
   });
 });
-describe('Sample test to fail', () => {
-  it('return value type of function concat must be an string', () => {
-    expect(true).toBeTruthy();
-  });
-});

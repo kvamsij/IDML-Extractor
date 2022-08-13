@@ -1,0 +1,29 @@
+name: Linting and Test
+
+on: pull_request
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-node@v3
+        with:
+          node-version: 16
+      - run: npm install
+      - run: npm ci
+
+  run-linter:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Running linter using eslint
+        - run: eslint .
+
+  run-tests:
+      needs: build
+      runs-on: ubuntu-latest
+      steps:
+        - name: Running jest tests
+        - run: npm test

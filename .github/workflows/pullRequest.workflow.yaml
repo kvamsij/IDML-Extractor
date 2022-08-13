@@ -4,6 +4,7 @@ on: pull_request
 
 jobs:
   build:
+    name: Run build ⚙️
     runs-on: ubuntu-latest
 
     steps:
@@ -14,6 +15,7 @@ jobs:
       - run: npm install
 
   run-linter:
+      name: Run Linter ✅
       needs: build
       runs-on: ubuntu-latest
       steps:
@@ -21,6 +23,7 @@ jobs:
         - run: node --version
 
   run-tests:
+      name: Run Test 🚨
       needs: run-linter
       runs-on: ubuntu-latest
       steps:

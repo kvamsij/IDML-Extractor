@@ -23,7 +23,7 @@ jobs:
           with:
             node-version: 16
         - name: Running linter using eslint
-        - run: eslint .
+          run: eslint .
 
   run-tests:
       needs: build
@@ -34,4 +34,4 @@ jobs:
           with:
             node-version: 16
         - name: Running jest tests
-        - run: npm test
+          run: npm test

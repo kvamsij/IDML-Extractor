@@ -13,6 +13,8 @@ jobs:
         with:
           node-version: 16
       - run: npm install
+      - run: npx eslint .
+      - run: npm test
 
   run-linter:
       name: Run Linter ✅
@@ -27,4 +29,5 @@ jobs:
       needs: build
       runs-on: ubuntu-latest
       steps:
-        - uses: jlndk/github-action-jest@1.0.3
+        - uses: actions/checkout@v3
+        - run: node -v

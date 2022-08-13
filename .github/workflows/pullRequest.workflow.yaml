@@ -24,8 +24,7 @@ jobs:
 
   run-tests:
       name: Run Test 🚨
-      needs: run-linter
+      needs: build
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
-        - run: npm test
+        - uses: jlndk/github-action-jest@1.0.3

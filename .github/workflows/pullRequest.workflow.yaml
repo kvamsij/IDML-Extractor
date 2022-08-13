@@ -12,26 +12,18 @@ jobs:
         with:
           node-version: 16
       - run: npm install
-      - run: npm ci
 
   run-linter:
       needs: build
       runs-on: ubuntu-latest
       steps:
         - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
         - run: node --version
 
   run-tests:
       needs: run-linter
       runs-on: ubuntu-latest
       steps:
-        - uses: actions/checkout@v3
-        - uses: actions/setup-node@v3
-          with:
-            node-version: 16
         - uses: stefanoeb/jest-action@1.0.3
           with:
-            jestArgs: path/to/my.test.js
+            jestArgs: src/__test__/*

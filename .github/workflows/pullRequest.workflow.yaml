@@ -23,7 +23,7 @@ jobs:
           with:
             node-version: 16
         - name: Running linter using eslint
-          run: eslint .
+          run: npx eslint .
 
   run-tests:
       needs: build

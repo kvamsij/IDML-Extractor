@@ -7,7 +7,7 @@
     "start:dev": "nodemon",
     "start:prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/src/index.js",
     "build": "tsc -p tsconfig.prod.json",
-    "test": "jest -- -u -t='ColorPicker'",
+    "test": "jest",
     "test:watch": "jest npm test --watchAll",
     "test:no-watch": "jest --watch-false",
     "test:coverage": "jest --coverage",

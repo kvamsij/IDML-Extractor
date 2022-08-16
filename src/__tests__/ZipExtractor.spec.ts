@@ -2,16 +2,19 @@ import { ZipExtractor } from '@src/core/usecase/ZipExtractor';
 import { setUp, getFilePaths, cleanUp } from '@src/__testUtils__/ZipExtractor/Utils';
 import { readFileSync } from 'fs';
 import path from 'path';
+import { promisify } from 'util';
 
-const { exampleZipFile, sampleTextFile, sourcePath, destinationPath, fakeZipFile, zipDestination } = getFilePaths();
+const { sampleTextFile, exampleZipFile, sourcePath, destinationPath, fakeZipFile, zipDestination } = getFilePaths();
+const delay = promisify(setTimeout);
 
-beforeAll(() => {
+beforeAll(async () => {
   setUp({ zipFilePath: exampleZipFile, textFilePath: sampleTextFile });
+  await delay(250);
 });
 
 afterAll(() => {
   jest.clearAllMocks();
-  cleanUp(sampleTextFile, exampleZipFile);
+  cleanUp(exampleZipFile, sampleTextFile, zipDestination);
 });
 
 describe('ZipExtractor', () => {
@@ -20,13 +23,15 @@ describe('ZipExtractor', () => {
   createInstanceAndCallMethodTest(zipExtractor);
   errorChecksTest(zipExtractor, sourcePath, destinationPath, fakeZipFile, exampleZipFile);
   ExtractZipContentTest(zipExtractor, exampleZipFile, zipDestination);
+
+  cleanUp(sampleTextFile, exampleZipFile, zipDestination);
 });
 
 function ExtractZipContentTest(zipExtractor: ZipExtractor, zipFilePath: string, zipDestinationFolder: string): void {
   describe('Extract contents of zip file', () => {
     it('should contain a file with content `Hello World!!!!`', async () => {
       const result = zipExtractor.unZip(zipFilePath, zipDestinationFolder);
-      Promise.resolve(result).catch((error) => error);
+      await Promise.resolve(result).catch((error) => error);
       const fileData = readFileSync(path.join(zipDestinationFolder, 'sample.txt'), { encoding: 'utf-8' });
       expect(fileData).toStrictEqual('Hello World!!!!');
     });
@@ -52,7 +57,8 @@ function errorChecksTest(
     });
 
     it('should throw an error is the destinationPath is not absolute', async () => {
-      const result = zipExtractor.unZip(exampleZipFilePath, 'destinationPath');
+      const zipper = new ZipExtractor();
+      const result = zipper.unZip(exampleZipFilePath, 'destinationPath');
       await expect(result).rejects.toThrowError('DestinationPath must be absolute');
     });
   });

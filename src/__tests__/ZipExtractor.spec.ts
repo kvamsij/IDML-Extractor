@@ -8,7 +8,7 @@ const { sampleTextFile, exampleZipFile, sourcePath, destinationPath, fakeZipFile
 const delay = promisify(setTimeout);
 
 beforeAll(async () => {
-  setUp({ zipFilePath: exampleZipFile, textFilePath: sampleTextFile });
+  await setUp({ zipFilePath: exampleZipFile, textFilePath: sampleTextFile });
   await delay(250);
 });
 

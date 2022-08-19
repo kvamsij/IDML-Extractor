@@ -1,3 +1,5 @@
+type FileCopierResults = Promise<{ message: string } | { error: string }>;
+
 export interface IFileCopier {
-  copy(sourcePath: string, destinationPath: string): Promise<void>;
+  copy(): FileCopierResults;
 }

@@ -1,4 +1,4 @@
-import { rmSync } from 'fs';
+import { existsSync, rmSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 
@@ -9,7 +9,7 @@ const FAKE_FOLDER = `${tmpdir()}/FakeFolder`;
 export function testCleanUp(): jest.ProvidesHookCallback {
   return () => {
     rmSync(SAMPLE_TEXT_FILE);
-    rmSync(FAKE_FOLDER, { recursive: true });
+    if (existsSync(FAKE_FOLDER)) rmSync(FAKE_FOLDER, { recursive: true });
   };
 }
 export function testSetUp(): jest.ProvidesHookCallback {

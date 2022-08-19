@@ -1,14 +1,39 @@
-import { existsSync } from 'fs';
-import { rename } from 'fs/promises';
-import path from 'path';
+// eslint-disable-next-line eslint-comments/disable-enable-pair
+/* eslint-disable import/no-default-export */
 
-export class FileRename {
-  // eslint-disable-next-line class-methods-use-this
-  async rename(filePath: string): Promise<void> {
-    if (path.extname(filePath) !== '.idml') throw new Error('Provided file is not an idml file');
-    if (!existsSync(filePath)) throw new Error('File not found');
-    const { dir, name } = path.parse(filePath);
-    const newFilePath = path.join(dir, 'test', `${name}.zip`);
-    await rename(filePath, newFilePath);
+import path from 'path';
+import { rename } from 'fs/promises';
+import { IFileRename } from '../entities/IFileRename';
+
+type FileRenameResults = Promise<{ message: string } | { error: string } | undefined>;
+
+const FILE_EXTENSION = '.idml';
+const SUCCESS_MSG = { message: 'Successfully rename file' };
+
+const ERRORS = {
+  FILE_NOT_FOUND: { error: 'File Not Found' },
+  NOT_IDML_FILE: { error: 'Provided file is not an idml file' },
+};
+
+export default class FileRename implements IFileRename {
+  private newFilePath: string;
+
+  private hasExtensionIDML: boolean;
+
+  constructor(private sourcePath: string) {
+    const { dir, name } = path.parse(this.sourcePath);
+    this.newFilePath = path.join(dir, 'test', `${name}.zip`);
+    this.hasExtensionIDML = path.extname(this.sourcePath) === FILE_EXTENSION;
+  }
+
+  async fsRename(): FileRenameResults {
+    if (!this.hasExtensionIDML) return ERRORS.NOT_IDML_FILE;
+    try {
+      await rename(this.sourcePath, this.newFilePath);
+      return SUCCESS_MSG;
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (err: any) {
+      return ERRORS.FILE_NOT_FOUND;
+    }
   }
 }

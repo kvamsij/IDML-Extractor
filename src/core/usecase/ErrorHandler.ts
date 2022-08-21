@@ -1,4 +1,5 @@
 import { existsSync, rmSync } from 'fs';
+import { IErrorHandler } from '../entities/IErrorHandler';
 
 export type FilePaths = {
   zipFilePath: string;
@@ -6,7 +7,7 @@ export type FilePaths = {
   extractedFolderPath: string;
 };
 
-export class ErrorHandler {
+export class ErrorHandler implements IErrorHandler {
   private filePaths: FilePaths;
 
   constructor(filePaths: FilePaths) {
@@ -14,7 +15,7 @@ export class ErrorHandler {
   }
 
   // eslint-disable-next-line class-methods-use-this
-  handle() {
+  handle(): void {
     const { zipFilePath, idmlFilePath, extractedFolderPath } = this.filePaths;
     [zipFilePath, idmlFilePath, extractedFolderPath].forEach((filePath) => {
       if (existsSync(filePath)) rmSync(filePath, { recursive: true });

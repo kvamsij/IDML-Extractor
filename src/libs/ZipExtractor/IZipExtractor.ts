@@ -1,5 +1,6 @@
-type UnZipResults = Promise<{ message: string } | { error: string } | undefined>;
+import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
 
+export type Response = (IDMLExtractorError | null)[] | (string | null)[];
 export interface IZipExtractor {
-  unZip(sourcePath: string, destinationPath: string): UnZipResults;
+  unZip(sourcePath: string, destinationPath: string): Promise<Response>;
 }

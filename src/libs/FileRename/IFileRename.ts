@@ -1,5 +1,6 @@
-type FileRenameResults = Promise<{ message: string } | { error: string } | undefined>;
+import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
 
+export type Response = (IDMLExtractorError | null)[] | (string | null)[];
 export interface IFileRename {
-  fsRename(): FileRenameResults;
+  fsRename(): Promise<Response>;
 }

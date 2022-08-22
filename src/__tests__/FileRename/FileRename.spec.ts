@@ -1,4 +1,6 @@
+import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
 import FileRename from '@src/libs/FileRename/FileRename';
+import { Response } from '@src/libs/FileRename/IFileRename';
 
 import { existsSync, rmSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
@@ -57,16 +59,20 @@ function FileRenameClassImplementationTest() {
 function FileRenameErrorsTest() {
   describe('FileRename Errors', () => {
     it('should throw an error if the filePath does not exists', async () => {
+      expect.assertions(2);
       const fileRename = new FileRename('./example.idml');
-      const response = await fileRename.fsRename();
-      expect(response).toMatchObject({ error: 'File Not Found' });
+      const [response, error] = await fileRename.fsRename();
+      expect(response).toBeNull();
+      expect(error).toMatchObject(new IDMLExtractorError('File Not Found'));
     });
 
     it('should throw an error if the given file extension is not .idml', async () => {
+      expect.assertions(2);
       const fakeTextFile = `${tmpdir()}/FakeFolder/fake.txt`;
       const fileRename = new FileRename(fakeTextFile);
-      const response = await fileRename.fsRename();
-      expect(response).toMatchObject({ error: 'Provided file is not an idml file' });
+      const [response, error] = await fileRename.fsRename();
+      expect(response).toBeNull();
+      expect(error).toMatchObject(new IDMLExtractorError('Provided file is not an idml file'));
     });
   });
 }
@@ -80,7 +86,7 @@ function FileRenameClassInitializerTest() {
     it('rename method should have been called once', async () => {
       const renameMockMethod = jest
         .spyOn(fileRename, 'fsRename')
-        .mockImplementation(async (): FileRenameResults => ({ message: SUCCESS_MSG }));
+        .mockImplementation(async (): Promise<Response> => [SUCCESS_MSG, null]);
       try {
         await fileRename.fsRename();
       } catch {

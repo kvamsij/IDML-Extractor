@@ -3,15 +3,18 @@
 
 import extract from 'extract-zip';
 import path from 'path';
-import { IZipExtractor } from './IZipExtractor';
+import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
+import { IZipExtractor, Response } from './IZipExtractor';
 
-const ERRORS = {
-  MUST_HAVE_ZIP_EXT: { error: 'Provided file is not a ZIP file' },
-  NOT_ABSOLUTE: { error: 'DestinationPath must be absolute' },
-  FILE_NOT_FOUND: { error: 'File not found' },
-};
-const SUCCESS_MSG = { message: 'Successfully Extracted' };
-const EXT = '.zip';
+enum MESSAGES {
+  MUST_HAVE_ZIP_EXT = 'Provided file is not a ZIP file',
+  NOT_ABSOLUTE = 'DestinationPath must be absolute',
+  FILE_NOT_FOUND = 'File not found',
+  DONE = 'Successfully Extracted',
+}
+enum EXTENSION {
+  ZIP = '.zip',
+}
 
 type FilePaths = {
   sourcePath: string;
@@ -23,21 +26,21 @@ export class ZipExtractor implements IZipExtractor {
 
   constructor(private filePaths: FilePaths) {
     const { sourcePath } = this.filePaths;
-    this.hasExtensionZip = path.extname(sourcePath) === EXT;
+    this.hasExtensionZip = path.extname(sourcePath) === EXTENSION.ZIP;
   }
 
-  async unZip(): Promise<{ message: string } | { error: string } | undefined> {
+  async unZip(): Promise<Response> {
     const { sourcePath, destinationPath } = this.filePaths;
-    if (!this.hasExtensionZip) return ERRORS.MUST_HAVE_ZIP_EXT;
+    if (!this.hasExtensionZip) return [null, new IDMLExtractorError(MESSAGES.MUST_HAVE_ZIP_EXT)];
 
     try {
       await extract(sourcePath, { dir: destinationPath });
-      return SUCCESS_MSG;
+      return [MESSAGES.DONE, null];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      if (err.code === 'ENOENT') return ERRORS.FILE_NOT_FOUND;
-      if (err instanceof Error) return { error: err.message };
-      return { error: err.message };
+      if (err.code === 'ENOENT') return [null, new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND)];
+      if (err instanceof Error) return [null, new IDMLExtractorError(err.message)];
+      return [null, new IDMLExtractorError(err.message)];
     }
   }
 }

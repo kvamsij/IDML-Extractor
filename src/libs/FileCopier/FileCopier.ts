@@ -3,15 +3,18 @@
 
 import { copyFile } from 'fs/promises';
 import path from 'path';
-import { IFileCopier } from './IFileCopier';
+import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
+import { IFileCopier, Response } from './IFileCopier';
 
-const ERRORS = {
-  FILE_NOT_FOUND: { error: 'File Not Found' },
-  NOT_ABSOLUTE_PATH: { error: 'Path must be absolute' },
-  MUST_HAVE_IDML_EXT: { error: 'File must be an IDML file' },
-};
-const SUCCESS_MESSAGE = { message: 'Successfully copied file' };
+enum MESSAGES {
+  FILE_NOT_FOUND = 'File Not Found',
+  NOT_ABSOLUTE_PATH = 'Path must be absolute',
+  MUST_HAVE_IDML_EXT = 'File must be an IDML file',
+  DONE = 'Successfully copied file',
+}
+
 const EXT = '.idml';
+
 type FilePaths = {
   sourcePath: string;
   destinationPath: string;
@@ -25,17 +28,17 @@ export class FileCopier implements IFileCopier {
     this.hasExtensionIDML = path.extname(sourcePath) === EXT;
   }
 
-  async copy(): Promise<{ error: string } | { message: string }> {
+  async copy(): Promise<Response> {
     const { sourcePath, destinationPath } = this.filePaths;
-    if (!this.hasExtensionIDML) return ERRORS.MUST_HAVE_IDML_EXT;
-    if (!path.isAbsolute(destinationPath)) return ERRORS.NOT_ABSOLUTE_PATH;
+    if (!this.hasExtensionIDML) return [null, new IDMLExtractorError(MESSAGES.MUST_HAVE_IDML_EXT)];
+    if (!path.isAbsolute(destinationPath)) return [null, new IDMLExtractorError(MESSAGES.NOT_ABSOLUTE_PATH)];
 
     try {
       await copyFile(sourcePath, destinationPath);
-      return SUCCESS_MESSAGE;
+      return [MESSAGES.DONE, null];
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      return ERRORS.FILE_NOT_FOUND;
+      return [null, new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND)];
     }
   }
 }

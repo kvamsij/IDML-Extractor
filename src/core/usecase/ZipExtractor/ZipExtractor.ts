@@ -3,7 +3,7 @@
 
 import extract from 'extract-zip';
 import path from 'path';
-import { IZipExtractor } from '../entities/IZipExtractor';
+import { IZipExtractor } from './IZipExtractor';
 
 const ERRORS = {
   MUST_HAVE_ZIP_EXT: { error: 'Provided file is not a ZIP file' },

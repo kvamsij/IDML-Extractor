@@ -1,8 +1,9 @@
-import { FileCopier } from '@src/core/usecase/FileCopier';
+import { FileCopier } from '@src/core/usecase/FileCopier/FileCopier';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import { testSetUp, testCleanUp } from '../../__testUtils__/FileCopier/testCleanUp';
+import { testCleanUp } from '../../__testUtils__/FileCopier/testCleanUp';
+import { testSetUp } from '../../__testUtils__/FileCopier/testSetUp';
 
 const ERRORS = {
   FILE_NOT_FOUND: { error: 'File Not Found' },

@@ -3,7 +3,7 @@
 
 import path from 'path';
 import { rename } from 'fs/promises';
-import { IFileRename } from '../entities/IFileRename';
+import { IFileRename } from './IFileRename';
 
 type FileRenameResults = Promise<{ message: string } | { error: string } | undefined>;
 

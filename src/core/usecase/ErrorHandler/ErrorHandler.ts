@@ -1,5 +1,5 @@
 import { existsSync, rmSync } from 'fs';
-import { IErrorHandler } from '../entities/IErrorHandler';
+import { IErrorHandler } from './IErrorHandler';
 
 export type FilePaths = {
   zipFilePath: string;

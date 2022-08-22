@@ -1,4 +1,4 @@
-import { ZipExtractor } from '@src/core/usecase/ZipExtractor';
+import { ZipExtractor } from '@src/core/usecase/ZipExtractor/ZipExtractor';
 import { getFilePaths } from '@src/__testUtils__/ZipExtractor/Utils';
 import { ZipExtractorTestSetUp } from '@src/__testUtils__/ZipExtractor/ZipExtractorTestSetUp';
 import { readFileSync } from 'fs';

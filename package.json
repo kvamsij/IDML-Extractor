@@ -57,7 +57,8 @@
   },
   "dependencies": {
     "dotenv-safe": "^8.2.0",
-    "extract-zip": "^2.0.1"
+    "extract-zip": "^2.0.1",
+    "winston": "^3.8.1"
   },
   "config": {
     "commitizen": {

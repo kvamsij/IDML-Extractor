@@ -1,4 +1,4 @@
-import { FilePaths } from '@src/core/usecase/ErrorHandler/ErrorHandler';
+import { FilePaths } from '@src/libs/ErrorHandler/ErrorHandler';
 import { existsSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 

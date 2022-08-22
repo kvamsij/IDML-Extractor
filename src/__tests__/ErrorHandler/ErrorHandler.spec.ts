@@ -1,4 +1,4 @@
-import { ErrorHandler } from '@src/core/usecase/ErrorHandler/ErrorHandler';
+import { ErrorHandler } from '@src/libs/ErrorHandler/ErrorHandler';
 import { ErrorHandlerTestCleanUp } from '@src/__testUtils__/ErrorHandler/ErrorHandlerTestCleanUp';
 import { ErrorHandlerTestSetUp } from '@src/__testUtils__/ErrorHandler/ErrorHandlerTestSetUp';
 import { filePaths, testFolder } from '@src/__testUtils__/ErrorHandler/filePaths';

@@ -1,4 +1,4 @@
-import FileRename from '@src/core/usecase/FileRename/FileRename';
+import FileRename from '@src/libs/FileRename/FileRename';
 
 import { existsSync, rmSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';

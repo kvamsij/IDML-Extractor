@@ -1,4 +1,4 @@
-import { FileCopier } from '@src/core/usecase/FileCopier';
+import { FileCopier } from '@src/core/usecase/FileCopier/FileCopier';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';

@@ -3,7 +3,7 @@
 
 import { copyFile } from 'fs/promises';
 import path from 'path';
-import { IFileCopier } from '../entities/IFileCopier';
+import { IFileCopier } from './IFileCopier';
 
 const ERRORS = {
   FILE_NOT_FOUND: { error: 'File Not Found' },

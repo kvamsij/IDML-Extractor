@@ -4,7 +4,7 @@
 import extract from 'extract-zip';
 import path from 'path';
 import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
-import { IZipExtractor, Response } from './IZipExtractor';
+import { IZipExtractor } from './IZipExtractor';
 
 enum MESSAGES {
   MUST_HAVE_ZIP_EXT = 'Provided file is not a ZIP file',
@@ -29,18 +29,18 @@ export class ZipExtractor implements IZipExtractor {
     this.hasExtensionZip = path.extname(sourcePath) === EXTENSION.ZIP;
   }
 
-  async unZip(): Promise<Response> {
+  async unZip(): Promise<string> {
     const { sourcePath, destinationPath } = this.filePaths;
-    if (!this.hasExtensionZip) return [null, new IDMLExtractorError(MESSAGES.MUST_HAVE_ZIP_EXT)];
+    if (!this.hasExtensionZip) throw new IDMLExtractorError(MESSAGES.MUST_HAVE_ZIP_EXT);
 
     try {
       await extract(sourcePath, { dir: destinationPath });
-      return [MESSAGES.DONE, null];
+      return MESSAGES.DONE;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      if (err.code === 'ENOENT') return [null, new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND)];
-      if (err instanceof Error) return [null, new IDMLExtractorError(err.message)];
-      return [null, new IDMLExtractorError(err.message)];
+      if (err.code === 'ENOENT') throw new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND);
+      if (err instanceof Error) throw new IDMLExtractorError(err.message);
+      throw new IDMLExtractorError(err.message);
     }
   }
 }

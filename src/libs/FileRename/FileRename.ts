@@ -3,7 +3,7 @@
 
 import path from 'path';
 import { rename } from 'fs/promises';
-import { IFileRename, Response } from './IFileRename';
+import { IFileRename } from './IFileRename';
 import { IDMLExtractorError } from '../CustomError/IDMLExtractorError';
 
 enum MESSAGES {
@@ -16,7 +16,7 @@ enum EXTENSION {
   IDML = '.idml',
 }
 
-export default class FileRename implements IFileRename {
+export class FileRename implements IFileRename {
   private newFilePath: string;
 
   private hasExtensionIDML: boolean;
@@ -27,14 +27,14 @@ export default class FileRename implements IFileRename {
     this.hasExtensionIDML = path.extname(this.sourcePath) === EXTENSION.IDML;
   }
 
-  async fsRename(): Promise<Response> {
-    if (!this.hasExtensionIDML) return [null, new IDMLExtractorError(MESSAGES.NOT_IDML_FILE)];
+  async fsRename(): Promise<string> {
+    if (!this.hasExtensionIDML) throw new IDMLExtractorError(MESSAGES.NOT_IDML_FILE);
     try {
       await rename(this.sourcePath, this.newFilePath);
-      return [MESSAGES.DONE, null];
+      return MESSAGES.DONE;
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
-      return [null, new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND)];
+      throw new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND);
     }
   }
 }

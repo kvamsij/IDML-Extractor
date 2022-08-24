@@ -3,6 +3,7 @@ import { ConfigSetUpUtils } from '@src/__testUtils__/FolderSystem/ConfigSetUpUti
 import { GetFilePathsUtils } from '@src/__testUtils__/FolderSystem/GetFilePathsUtils';
 import dotenv from 'dotenv';
 import { existsSync } from 'fs';
+import { rm } from 'fs/promises';
 import { tmpdir } from 'os';
 import path from 'path';
 
@@ -11,18 +12,22 @@ dotenv.config();
 afterEach(() => {
   jest.clearAllMocks();
 });
+afterAll(async () => {
+  const rootBucket = process.env.ROOT_BUCKET ?? 'rootBucket';
+  await rm(path.join(tmpdir(), rootBucket), { recursive: true });
+});
 describe('FolderSystem', () => {
   FileSystemInitializationTest();
   FileSystemConfigSetUpTest();
   FileSystemGetFilePathsTest();
 });
 
-function FileSystemGetFilePathsTest() {
+function FileSystemConfigSetUpTest() {
   describe('FolderSystem Implementation - config set up', () => {
     it('should create folder structure', async () => {
       await new FolderSystem('fakeFile').configSetUp();
 
-      const { rootBucket, idmlFileBucket, zipFileBucket, unZipFileBucket } = GetFilePathsUtils();
+      const { rootBucket, idmlFileBucket, zipFileBucket, unZipFileBucket } = ConfigSetUpUtils();
 
       const isRootFolderExists = existsSync(path.join(tmpdir(), rootBucket));
       const isIdmlFileFolderExists = existsSync(path.join(tmpdir(), rootBucket, idmlFileBucket));
@@ -37,11 +42,11 @@ function FileSystemGetFilePathsTest() {
   });
 }
 
-function FileSystemConfigSetUpTest() {
+function FileSystemGetFilePathsTest() {
   describe('FolderSystem Implementation - get file paths', () => {
     it('should return filePaths', () => {
       const filePaths = new FolderSystem('fakeFile').getFilePaths();
-      const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } = ConfigSetUpUtils();
+      const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } = GetFilePathsUtils();
       const expectedFilePaths = {
         fileCopierFilePaths: {
           sourcePath: path.join(location, rootBucket, idmlFileBucket, 'fakeFile.idml'),

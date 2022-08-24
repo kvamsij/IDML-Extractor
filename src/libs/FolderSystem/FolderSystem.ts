@@ -22,12 +22,11 @@ export class FolderSystem implements IFolderSystem {
   private unzipFileBucket: string;
 
   constructor(private filename: string) {
-    this.location = process.env.NODE_DEV ? tmpdir() : process.cwd();
-
-    this.rootBucket = process.env.ROOT_BUCKET || 'rootBucket';
-    this.idmlFileBucket = process.env.IDML_FILE_BUCKET || 'idmls-files';
-    this.zipFileBucket = process.env.ZIP_FILE_BUCKET || 'zip-files';
-    this.unzipFileBucket = process.env.UNZIP_FILE_BUCKET || 'unzip-files';
+    this.location = process.env.NODE_DEV === 'true' ? process.cwd() : tmpdir();
+    this.rootBucket = process.env.ROOT_BUCKET ?? 'rootBucket';
+    this.idmlFileBucket = process.env.IDML_FILE_BUCKET ?? 'idmls-files';
+    this.zipFileBucket = process.env.ZIP_FILE_BUCKET ?? 'zip-files';
+    this.unzipFileBucket = process.env.UNZIP_FILE_BUCKET ?? 'unzip-files';
   }
 
   async configSetUp(): Promise<void> {

@@ -42,7 +42,6 @@ function FileSystemConfigSetUpTest() {
     it('should return filePaths', () => {
       const filePaths = new FolderSystem('fakeFile').getFilePaths();
       const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } = ConfigSetUpUtils();
-
       const expectedFilePaths = {
         fileCopierFilePaths: {
           sourcePath: path.join(location, rootBucket, idmlFileBucket, 'fakeFile.idml'),

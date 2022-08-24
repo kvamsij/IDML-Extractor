@@ -1,7 +1,7 @@
 import { tmpdir } from 'os';
 
 export function ConfigSetUpUtils() {
-  const location = process.env.NODE_DEV ? tmpdir() : process.cwd();
+  const location = process.env.NODE_DEV === 'true' ? process.cwd() : tmpdir();
   const rootBucket = process.env.ROOT_BUCKET ?? 'rootBucket';
   const idmlFileBucket = process.env.IDML_FILE_BUCKET ?? 'idmls-files';
   const zipFileBucket = process.env.ZIP_FILE_BUCKET ?? 'zip-files';

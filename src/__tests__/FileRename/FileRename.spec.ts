@@ -1,13 +1,11 @@
 import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
-import FileRename from '@src/libs/FileRename/FileRename';
-import { Response } from '@src/libs/FileRename/IFileRename';
+import { FileRename } from '@src/libs/FileRename/FileRename';
 
 import { existsSync, rmSync } from 'fs';
 import { mkdir, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import path from 'path';
 
-type FileRenameResults = Promise<{ message: string } | { error: string } | undefined>;
 const SUCCESS_MSG = 'Successfully renamed file';
 
 beforeAll(async () => {
@@ -59,20 +57,16 @@ function FileRenameClassImplementationTest() {
 function FileRenameErrorsTest() {
   describe('FileRename Errors', () => {
     it('should throw an error if the filePath does not exists', async () => {
-      expect.assertions(2);
       const fileRename = new FileRename('./example.idml');
-      const [response, error] = await fileRename.fsRename();
-      expect(response).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError('File Not Found'));
+      const response = fileRename.fsRename();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError('File Not Found'));
     });
 
     it('should throw an error if the given file extension is not .idml', async () => {
-      expect.assertions(2);
       const fakeTextFile = `${tmpdir()}/FakeFolder/fake.txt`;
       const fileRename = new FileRename(fakeTextFile);
-      const [response, error] = await fileRename.fsRename();
-      expect(response).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError('Provided file is not an idml file'));
+      const response = fileRename.fsRename();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError('Provided file is not an idml file'));
     });
   });
 }
@@ -86,7 +80,7 @@ function FileRenameClassInitializerTest() {
     it('rename method should have been called once', async () => {
       const renameMockMethod = jest
         .spyOn(fileRename, 'fsRename')
-        .mockImplementation(async (): Promise<Response> => [SUCCESS_MSG, null]);
+        .mockImplementation(async (): Promise<string> => SUCCESS_MSG);
       try {
         await fileRename.fsRename();
       } catch {

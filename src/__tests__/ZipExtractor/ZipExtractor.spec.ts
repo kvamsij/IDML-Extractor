@@ -37,27 +37,21 @@ function ZipExtractorInitializationTest(): void {
 function ZipExtractorErrorsTest() {
   describe('Error checks', () => {
     it('should throw an error if the sourcePath file extension is not zip', async () => {
-      expect.assertions(2);
       const zipExtractor = new ZipExtractor({ sourcePath, destinationPath });
-      const [result, error] = await zipExtractor.unZip();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError('Provided file is not a ZIP file'));
+      const result = zipExtractor.unZip();
+      await expect(result).rejects.toThrowError(new IDMLExtractorError('Provided file is not a ZIP file'));
     });
 
     it('should throw an error if sourcePath not found', async () => {
-      expect.assertions(2);
       const zipExtractor = new ZipExtractor({ sourcePath: fakeZipFile, destinationPath });
-      const [result, error] = await zipExtractor.unZip();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError('File not found'));
+      const result = zipExtractor.unZip();
+      await expect(result).rejects.toThrowError(new IDMLExtractorError('File not found'));
     });
 
     it('should throw an error is the destinationPath is not absolute', async () => {
-      expect.assertions(2);
       const zipper = new ZipExtractor({ sourcePath: exampleZipFile, destinationPath: 'destinationPath' });
-      const [result, error] = await zipper.unZip();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError('Target directory is expected to be absolute'));
+      const result = zipper.unZip();
+      await expect(result).rejects.toThrowError(new IDMLExtractorError('Target directory is expected to be absolute'));
     });
   });
 }

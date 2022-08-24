@@ -33,11 +33,9 @@ function fileCopierImplementationTests() {
     const destinationPath = path.join(`${tmpdir()}/FakeFolder/fakeIDML.idml`);
 
     it('should execute copy method and return undefined', async () => {
-      expect.assertions(2);
       const fileCopier = new FileCopier({ sourcePath, destinationPath });
-      const [result, error] = await fileCopier.copy();
-      expect(error).toBeNull();
-      expect(result).toBe(MESSAGES.DONE);
+      const response = await fileCopier.copy();
+      expect(response).toBe(MESSAGES.DONE);
     });
 
     it('should copy fake.idml file to FakeFolder', async () => {
@@ -50,33 +48,27 @@ function fileCopierImplementationTests() {
 function fileCopierErrorsTests() {
   describe('FileCopier Errors', () => {
     it('should throw an error if source file is not an idml file(.idml extension)', async () => {
-      expect.assertions(2);
       const sourcePath = path.join(`${tmpdir()}/sample.txt`);
       const destinationPath = sourcePath;
       const fileCopier = new FileCopier({ sourcePath, destinationPath });
-      const [result, error] = await fileCopier.copy();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError(MESSAGES.MUST_HAVE_IDML_EXT));
+      const response = fileCopier.copy();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError(MESSAGES.MUST_HAVE_IDML_EXT));
     });
 
     it('should throw an error if destination file path not absolute', async () => {
-      expect.assertions(2);
       const sourcePath = path.join(`${tmpdir()}/fake.idml`);
       const destinationPath = 'destinationPath';
       const fileCopier = new FileCopier({ sourcePath, destinationPath });
-      const [result, error] = await fileCopier.copy();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError(MESSAGES.NOT_ABSOLUTE_PATH));
+      const response = fileCopier.copy();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError(MESSAGES.NOT_ABSOLUTE_PATH));
     });
 
     it('should throw an error if source file path not found', async () => {
-      expect.assertions(2);
       const sourcePath = path.join(`${tmpdir()}/noPath/fake.idml`);
       const destinationPath = path.join(`${tmpdir()}/noPath/fake.idml`);
       const fileCopier = new FileCopier({ sourcePath, destinationPath });
-      const [result, error] = await fileCopier.copy();
-      expect(result).toBeNull();
-      expect(error).toMatchObject(new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND));
+      const response = fileCopier.copy();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError(MESSAGES.FILE_NOT_FOUND));
     });
   });
 }

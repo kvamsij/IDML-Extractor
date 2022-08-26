@@ -23,7 +23,7 @@ export class FileRename implements IFileRename {
 
   constructor(private sourcePath: string) {
     const { dir, name } = path.parse(this.sourcePath);
-    this.newFilePath = path.join(dir, 'test', `${name}.zip`);
+    this.newFilePath = path.join(dir, `${name}.zip`);
     this.hasExtensionIDML = path.extname(this.sourcePath) === EXTENSION.IDML;
   }
 

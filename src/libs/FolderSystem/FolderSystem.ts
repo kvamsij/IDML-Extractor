@@ -2,11 +2,10 @@
 /* eslint-disable class-methods-use-this */
 
 import dotenv from 'dotenv';
-import { existsSync } from 'fs';
-import { mkdir } from 'fs/promises';
+import { existsSync, mkdirSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import { FolderSystemFilePaths, IFolderSystem, FilePaths } from './IFolderSystem';
+import { FilePaths, FolderSystemFilePaths, IFolderSystem } from './IFolderSystem';
 
 dotenv.config();
 
@@ -31,13 +30,13 @@ export class FolderSystem implements IFolderSystem {
 
   async configSetUp(): Promise<void> {
     const rootPath = path.join(this.location, this.rootBucket);
-
-    if (!existsSync(rootPath)) await mkdir(rootPath);
     const folders = [this.idmlFileBucket, this.zipFileBucket, this.unzipFileBucket];
 
-    folders.forEach(async (folder) => {
+    folders.forEach((folder) => {
       const folderPath = path.join(rootPath, folder);
-      if (!existsSync(folderPath)) await mkdir(folderPath);
+      if (!existsSync(folderPath)) {
+        mkdirSync(folderPath, { recursive: true });
+      }
     });
   }
 
@@ -70,7 +69,7 @@ export class FolderSystem implements IFolderSystem {
 
   private constructZipExtractorFilePaths(rootDirPath: string): FilePaths {
     const sourcePath = path.join(rootDirPath, this.zipFileBucket, `${this.filename}.zip`);
-    const destinationPath = path.join(rootDirPath, this.unzipFileBucket);
+    const destinationPath = path.join(rootDirPath, this.unzipFileBucket, this.filename);
     return { sourcePath, destinationPath };
   }
 }

@@ -1,21 +1,12 @@
-import { FileRename } from '@src/core/usecase/FileRename';
+import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
+import { FileRename } from '@src/libs/FileRename/FileRename';
 
 import { existsSync, rmSync } from 'fs';
-import { rename, mkdir, writeFile } from 'fs/promises';
+import { mkdir, writeFile } from 'fs/promises';
 import { tmpdir } from 'os';
 import path from 'path';
 
-const mockRename = jest.fn(async (filePath: string): Promise<void> => {
-  if (path.extname(filePath) !== '.idml') throw new Error('Provided file is not an idml file');
-  if (!existsSync(filePath)) throw new Error('File not found');
-  const { dir, name } = path.parse(filePath);
-  const newFilePath = path.join(dir, 'test', `${name}.zip`);
-  await rename(filePath, newFilePath);
-});
-
-jest.mock('@src/core/usecase/FileRename', () => ({
-  FileRename: jest.fn().mockImplementation(() => ({ rename: mockRename })),
-}));
+const SUCCESS_MSG = 'Successfully renamed file';
 
 beforeAll(async () => {
   await mkdir(`${tmpdir()}/FakeFolder/test`, { recursive: true });
@@ -41,20 +32,23 @@ describe('FileRename', () => {
 function FileRenameClassImplementationTest() {
   describe('FileRename Implementation', () => {
     it('should rename filename with .zip as extension', async () => {
-      const fileRename = new FileRename();
-      await fileRename.rename(`${tmpdir()}/FakeFolder/fake.idml`);
-      const isZipExists = existsSync(`${tmpdir()}/FakeFolder/test/fake.zip`);
+      const fileRename = new FileRename(`${tmpdir()}/FakeFolder/fake.idml`);
+      await fileRename.fsRename();
+      const isZipExists = existsSync(`${tmpdir()}/FakeFolder/fake.zip`);
       expect(isZipExists).toBeTruthy();
     });
 
     it('should called with given file path', async () => {
-      const fileRename = new FileRename();
+      const sourcePath = path.join(`${tmpdir()}`, 'FakeFolder', 'fake.idml');
+      const fileRename = new FileRename(sourcePath);
       try {
-        await fileRename.rename(`${tmpdir()}/FakeFolder/fake.idml`);
+        await fileRename.fsRename();
       } catch {
         // ignore errors
       } finally {
-        expect(mockRename.mock.calls[0][0]).toEqual(`${tmpdir()}/FakeFolder/fake.idml`);
+        expect(fileRename).toMatchObject({
+          sourcePath,
+        });
       }
     });
   });
@@ -63,34 +57,36 @@ function FileRenameClassImplementationTest() {
 function FileRenameErrorsTest() {
   describe('FileRename Errors', () => {
     it('should throw an error if the filePath does not exists', async () => {
-      const fileRename = new FileRename();
-      const response = fileRename.rename('./example.idml');
-      await expect(response).rejects.toThrowError('File not found');
+      const fileRename = new FileRename('./example.idml');
+      const response = fileRename.fsRename();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError('File Not Found'));
     });
 
     it('should throw an error if the given file extension is not .idml', async () => {
-      const fileRename = new FileRename();
-      const response = fileRename.rename(`${tmpdir()}/FakeFolder/fake.txt`);
-      await expect(response).rejects.toThrowError('Provided file is not an idml file');
+      const fakeTextFile = `${tmpdir()}/FakeFolder/fake.txt`;
+      const fileRename = new FileRename(fakeTextFile);
+      const response = fileRename.fsRename();
+      await expect(response).rejects.toThrowError(new IDMLExtractorError('Provided file is not an idml file'));
     });
   });
 }
 
 function FileRenameClassInitializerTest() {
+  const fileRename = new FileRename('./example');
   describe('FileRename class Initialization', () => {
     it('should be able to call new() on FileRename', () => {
-      const fileRename = new FileRename();
       expect(fileRename).toBeTruthy();
     });
     it('rename method should have been called once', async () => {
-      const fileRename = new FileRename();
-
+      const renameMockMethod = jest
+        .spyOn(fileRename, 'fsRename')
+        .mockImplementation(async (): Promise<string> => SUCCESS_MSG);
       try {
-        await fileRename.rename('./example.txt');
+        await fileRename.fsRename();
       } catch {
         // ignore errors
       } finally {
-        expect(mockRename).toHaveBeenCalledTimes(1);
+        expect(renameMockMethod).toHaveBeenCalledTimes(1);
       }
     });
   });

@@ -1,4 +1,4 @@
-import { existsSync, rmSync, writeFileSync } from 'fs';
+import { writeFileSync } from 'fs';
 import JSZip from 'jszip';
 import { tmpdir } from 'os';
 import path from 'path';
@@ -10,18 +10,13 @@ export const enum FILEPATHS {
   ZIP_DESTINATION = 'example',
 }
 
-const createZipFile = async (filePath: string) => {
+export const createZipFile = async (filePath: string) => {
   const zip = new JSZip();
   zip.file('sample.txt', 'Hello World!!!!');
   const zipContent = await zip.generateAsync({ type: 'nodebuffer' });
   writeFileSync(filePath, zipContent);
 };
 
-export const setUp = async (files: { zipFilePath: string; textFilePath: string }) => {
-  const { textFilePath, zipFilePath } = files;
-  writeFileSync(textFilePath, 'Sample text file');
-  createZipFile(zipFilePath);
-};
 export function getFilePaths() {
   const getTemporaryfilePath = (filename: string) => path.join(tmpdir(), filename);
   return {
@@ -33,10 +28,3 @@ export function getFilePaths() {
     zipDestination: getTemporaryfilePath(FILEPATHS.ZIP_DESTINATION),
   };
 }
-
-export const cleanUp = (zipFilePath: string, textFilePath: string, zipFolder: string) => {
-  const files = [zipFilePath, textFilePath, zipFolder];
-  files.forEach((filePath) => {
-    if (existsSync(filePath)) rmSync(filePath, { recursive: true });
-  });
-};

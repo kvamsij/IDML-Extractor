@@ -1,16 +1,10 @@
 import { existsSync, rmSync } from 'fs';
-import { IErrorHandler } from './IErrorHandler';
-
-export type FilePaths = {
-  zipFilePath: string;
-  idmlFilePath: string;
-  extractedFolderPath: string;
-};
+import { ErrorHandlerFilePaths, IErrorHandler } from './IErrorHandler';
 
 export class ErrorHandler implements IErrorHandler {
-  private filePaths: FilePaths;
+  private filePaths: ErrorHandlerFilePaths;
 
-  constructor(filePaths: FilePaths) {
+  constructor(filePaths: ErrorHandlerFilePaths) {
     this.filePaths = filePaths;
   }
 

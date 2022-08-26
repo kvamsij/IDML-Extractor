@@ -1,40 +1,33 @@
-import { GetFilePaths, GetProcessorClassInstance } from '@src/__testUtils__/Processor/GetProcessorClassInstance';
-import { ProcessorTestCleanUp } from '@src/__testUtils__/Processor/ProcessorTestCleanUp';
-import { ProcessorTestSetUp } from '@src/__testUtils__/Processor/ProcessorTestSetUp';
+import { FolderSystemFilePaths } from '@src/libs/FolderSystem/IFolderSystem';
+import {
+  CleanUp,
+  CreateFolders,
+  CreateZipFile,
+  GetClassInstanceAndMocks,
+  GetClassInstanceAndMocksResults,
+  GetFilePaths,
+} from '@src/__testUtils__/setUp';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
 
 const filename = 'idmlFile';
-let filePaths: any;
-let processor: any;
-let fileCopier: any;
-let logger: any;
-let fileRename: any;
-let zipExtractor: any;
-
-let copyMethodSpy: jest.SpyInstance;
-let fsRenameMethodSpy: jest.SpyInstance;
-let unZipMethodSpy: jest.SpyInstance;
-let loggerInfoSpy: jest.SpyInstance;
+let filePaths: FolderSystemFilePaths;
+let processor: GetClassInstanceAndMocksResults['processor'];
+let mocks: GetClassInstanceAndMocksResults['mocks'];
 
 beforeAll(async () => {
-  filePaths = await GetFilePaths(filename);
-  await ProcessorTestSetUp(filename);
+  filePaths = GetFilePaths(filename);
+  await CreateFolders(filename);
+  await CreateZipFile(filePaths.fileCopierFilePaths.sourcePath);
 });
-afterAll(ProcessorTestCleanUp());
+afterAll(async () => {
+  await CleanUp();
+});
 beforeEach(async () => {
-  const classInstances = GetProcessorClassInstance(filePaths);
-  processor = classInstances.processor;
-  fileCopier = classInstances.fileCopier;
-  logger = classInstances.logger;
-  fileRename = classInstances.fileRename;
-  zipExtractor = classInstances.zipExtractor;
-
-  copyMethodSpy = jest.spyOn(fileCopier, 'copy');
-  fsRenameMethodSpy = jest.spyOn(fileRename, 'fsRename');
-  unZipMethodSpy = jest.spyOn(zipExtractor, 'unZip');
-  loggerInfoSpy = jest.spyOn(logger, 'info');
+  const mocksAndClassInstance = GetClassInstanceAndMocks(filePaths);
+  processor = mocksAndClassInstance.processor;
+  mocks = mocksAndClassInstance.mocks;
 });
 
 afterEach(() => {
@@ -42,71 +35,16 @@ afterEach(() => {
 });
 
 describe('Processor Implementation', () => {
-  it('should Call FileCopier class with copy method', async () => {
-    copyMethodSpy.mockResolvedValue('Successfully copied file');
-    fsRenameMethodSpy.mockImplementation();
-    unZipMethodSpy.mockImplementation();
-    loggerInfoSpy.mockImplementation();
-    try {
-      await processor.process();
-    } catch (error) {
-      //
-    } finally {
-      expect(copyMethodSpy).toBeCalledTimes(1);
-      expect(await copyMethodSpy.mock.results[0].value).toStrictEqual('Successfully copied file');
-    }
-  });
+  ShouldCallCopyMethod();
+  ShouldCallFsRenameMethod();
+  ShouldCallUnZipMethod();
+  ShouldCallLoggerInfoMethod();
+  ShouldBeAFolder();
+});
 
-  it('should Call FileRename Class with fsRename method', async () => {
-    copyMethodSpy.mockResolvedValue('Successfully copied file');
-    fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
-    unZipMethodSpy.mockImplementation();
-    loggerInfoSpy.mockImplementation();
-
-    try {
-      await processor.process();
-    } catch (error) {
-      //
-    } finally {
-      expect(fsRenameMethodSpy).toBeCalledTimes(1);
-      expect(await fsRenameMethodSpy.mock.results[0].value).toStrictEqual('Successfully rename file');
-    }
-  });
-
-  it('should Call ZipExtractor Class with unZip method', async () => {
-    copyMethodSpy.mockResolvedValue('Successfully copied file');
-    fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
-    unZipMethodSpy.mockResolvedValue('Successfully Extracted');
-    loggerInfoSpy.mockImplementation();
-    try {
-      await processor.process();
-    } catch (error) {
-      //
-    } finally {
-      expect(unZipMethodSpy).toBeCalledTimes(1);
-      expect(await unZipMethodSpy.mock.results[0].value).toStrictEqual('Successfully Extracted');
-      expect(loggerInfoSpy).toBeCalledWith('Successfully Extracted');
-    }
-  });
-  it('should call logger.info 3 times and with 3 different message', async () => {
-    copyMethodSpy.mockResolvedValue('Successfully copied file');
-    fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
-    unZipMethodSpy.mockResolvedValue('Successfully Extracted');
-    loggerInfoSpy.mockImplementation();
-    try {
-      await processor.process();
-    } catch (error) {
-      //
-    } finally {
-      expect.assertions(4);
-      expect(loggerInfoSpy).toBeCalledTimes(3);
-      expect(loggerInfoSpy).toHaveBeenNthCalledWith(1, 'Successfully copied file');
-      expect(loggerInfoSpy).toHaveBeenNthCalledWith(2, 'Successfully rename file');
-      expect(loggerInfoSpy).toHaveBeenNthCalledWith(3, 'Successfully Extracted');
-    }
-  });
+function ShouldBeAFolder() {
   it(`should be a folder with name idmlFiles in the unzipFolder`, async () => {
-    loggerInfoSpy.mockImplementation();
+    mocks.loggerInfoSpy.mockImplementation();
     try {
       await processor.process();
     } catch (error) {
@@ -116,4 +54,77 @@ describe('Processor Implementation', () => {
       expect(existsSync(folderPath)).toBeTruthy();
     }
   });
-});
+}
+
+function ShouldCallLoggerInfoMethod() {
+  it('should call logger.info 3 times and with 3 different message', async () => {
+    mocks.copyMethodSpy.mockResolvedValue('Successfully copied file');
+    mocks.fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
+    mocks.unZipMethodSpy.mockResolvedValue('Successfully Extracted');
+    mocks.loggerInfoSpy.mockImplementation();
+    try {
+      await processor.process();
+    } catch (error) {
+      //
+    } finally {
+      expect.assertions(4);
+      expect(mocks.loggerInfoSpy).toBeCalledTimes(3);
+      expect(mocks.loggerInfoSpy).toHaveBeenNthCalledWith(1, 'Successfully copied file');
+      expect(mocks.loggerInfoSpy).toHaveBeenNthCalledWith(2, 'Successfully rename file');
+      expect(mocks.loggerInfoSpy).toHaveBeenNthCalledWith(3, 'Successfully Extracted');
+    }
+  });
+}
+
+function ShouldCallUnZipMethod() {
+  it('should Call ZipExtractor Class with unZip method', async () => {
+    mocks.copyMethodSpy.mockResolvedValue('Successfully copied file');
+    mocks.fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
+    mocks.unZipMethodSpy.mockResolvedValue('Successfully Extracted');
+    mocks.loggerInfoSpy.mockImplementation();
+    try {
+      await processor.process();
+    } catch (error) {
+      //
+    } finally {
+      expect(mocks.unZipMethodSpy).toBeCalledTimes(1);
+      expect(await mocks.unZipMethodSpy.mock.results[0].value).toStrictEqual('Successfully Extracted');
+      expect(mocks.loggerInfoSpy).toBeCalledWith('Successfully Extracted');
+    }
+  });
+}
+
+function ShouldCallFsRenameMethod() {
+  it('should Call FileRename Class with fsRename method', async () => {
+    mocks.copyMethodSpy.mockResolvedValue('Successfully copied file');
+    mocks.fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
+    mocks.unZipMethodSpy.mockImplementation();
+    mocks.loggerInfoSpy.mockImplementation();
+
+    try {
+      await processor.process();
+    } catch (error) {
+      //
+    } finally {
+      expect(mocks.fsRenameMethodSpy).toBeCalledTimes(1);
+      expect(await mocks.fsRenameMethodSpy.mock.results[0].value).toStrictEqual('Successfully rename file');
+    }
+  });
+}
+
+function ShouldCallCopyMethod() {
+  it('should Call FileCopier class with copy method', async () => {
+    mocks.copyMethodSpy.mockResolvedValue('Successfully copied file');
+    mocks.fsRenameMethodSpy.mockImplementation();
+    mocks.unZipMethodSpy.mockImplementation();
+    mocks.loggerInfoSpy.mockImplementation();
+    try {
+      await processor.process();
+    } catch (error) {
+      //
+    } finally {
+      expect(mocks.copyMethodSpy).toBeCalledTimes(1);
+      expect(await mocks.copyMethodSpy.mock.results[0].value).toStrictEqual('Successfully copied file');
+    }
+  });
+}

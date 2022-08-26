@@ -1,33 +1,29 @@
-import { GetFilePaths, GetProcessorClassInstance } from '@src/__testUtils__/Processor/GetProcessorClassInstance';
-import { ProcessorTestCleanUp } from '@src/__testUtils__/Processor/ProcessorTestCleanUp';
-import { ProcessorTestSetUp } from '@src/__testUtils__/Processor/ProcessorTestSetUp';
-import dontenv from 'dotenv';
+import { FolderSystemFilePaths } from '@src/libs/FolderSystem/IFolderSystem';
 
-dontenv.config();
+import {
+  CleanUp,
+  CreateFolders,
+  CreateZipFile,
+  GetClassInstanceAndMocks,
+  GetClassInstanceAndMocksResults,
+  GetFilePaths,
+} from '@src/__testUtils__/setUp';
 
 const filename = 'fakeFile';
-let filePaths: any;
-let processor: any;
-let fileCopier: any;
-let fileRename: any;
-let zipExtractor: any;
-let logger: any;
-let errorHandler: any;
+let filePaths: FolderSystemFilePaths;
+let processor: GetClassInstanceAndMocksResults['processor'];
 
 beforeAll(async () => {
-  filePaths = await GetFilePaths(filename);
-
-  await ProcessorTestSetUp(filename);
-  const classInstances = GetProcessorClassInstance(filePaths);
-  processor = classInstances.processor;
-  fileCopier = classInstances.fileCopier;
-  fileRename = classInstances.fileRename;
-  zipExtractor = classInstances.zipExtractor;
-  logger = classInstances.logger;
-  errorHandler = classInstances.errorHandler;
+  filePaths = GetFilePaths(filename);
+  await CreateFolders(filename);
+  await CreateZipFile(filePaths.fileCopierFilePaths.sourcePath);
+  const mocksAndClassInstance = GetClassInstanceAndMocks(filePaths);
+  processor = mocksAndClassInstance.processor;
 });
 
-afterAll(ProcessorTestCleanUp());
+afterAll(async () => {
+  await CleanUp();
+});
 
 describe('IDML Processor', () => {
   describe('Processor Initialization', () => {
@@ -35,9 +31,16 @@ describe('IDML Processor', () => {
       expect(processor).toBeTruthy();
     });
     it('should have been called with parameters', () => {
-      expect(processor).toStrictEqual(
-        expect.objectContaining({ fileCopier, fileRename, zipExtractor, logger, errorHandler })
-      );
+      expect.assertions(5);
+      expect(processor).toHaveProperty(['fileCopier', 'filePaths'], filePaths.fileCopierFilePaths);
+      expect(processor).toHaveProperty(['fileRename', 'sourcePath'], filePaths.fileRenameFilePaths.sourcePath);
+      expect(processor).toHaveProperty(['zipExtractor', 'filePaths'], filePaths.zipExtractorFilePaths);
+      expect(processor).toHaveProperty('logger');
+      expect(processor).toHaveProperty(['errorHandler', 'filePaths'], {
+        extractedFolderPath: filePaths.zipExtractorFilePaths.destinationPath,
+        idmlFilePath: filePaths.fileCopierFilePaths.sourcePath,
+        zipFilePath: filePaths.fileRenameFilePaths.sourcePath,
+      });
     });
     it('should call process method once', () => {
       const mockProcessMethod = jest.fn();

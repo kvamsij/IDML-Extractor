@@ -1,21 +1,24 @@
+import { FolderSystemConfig, FolderSystemConfigProperties } from '@src/libs/Config/FolderSystemConfig';
 import { FolderSystem } from '@src/libs/FolderSystem/FolderSystem';
-import { ConfigSetUpUtils } from '@src/__testUtils__/FolderSystem/ConfigSetUpUtils';
-import { GetFilePathsUtils } from '@src/__testUtils__/FolderSystem/GetFilePathsUtils';
-import dotenv from 'dotenv';
 import { existsSync } from 'fs';
 import { rm } from 'fs/promises';
-import { tmpdir } from 'os';
 import path from 'path';
 
-dotenv.config();
+let config: FolderSystemConfigProperties;
+
+beforeAll(() => {
+  config = new FolderSystemConfig().getConfig();
+});
 
 afterEach(() => {
   jest.clearAllMocks();
 });
+
 afterAll(async () => {
-  const rootBucket = process.env.ROOT_BUCKET ?? 'rootBucket';
-  await rm(path.join(tmpdir(), rootBucket), { recursive: true });
+  const { location, rootBucket } = new FolderSystemConfig().getConfig();
+  await rm(path.join(location, rootBucket), { recursive: true });
 });
+
 describe('FolderSystem', () => {
   FileSystemInitializationTest();
   FileSystemConfigSetUpTest();
@@ -26,13 +29,11 @@ function FileSystemConfigSetUpTest() {
   describe('FolderSystem Implementation - config set up', () => {
     it('should create folder structure', async () => {
       await new FolderSystem('fakeFile').configSetUp();
-
-      const { rootBucket, idmlFileBucket, zipFileBucket, unZipFileBucket } = ConfigSetUpUtils();
-
-      const isRootFolderExists = existsSync(path.join(tmpdir(), rootBucket));
-      const isIdmlFileFolderExists = existsSync(path.join(tmpdir(), rootBucket, idmlFileBucket));
-      const isZipFileFolderExists = existsSync(path.join(tmpdir(), rootBucket, zipFileBucket));
-      const isUnZipFileFolderExists = existsSync(path.join(tmpdir(), rootBucket, unZipFileBucket));
+      const { location, rootBucket, idmlFileBucket, unzipFileBucket, zipFileBucket } = config;
+      const isRootFolderExists = existsSync(path.join(location, rootBucket));
+      const isIdmlFileFolderExists = existsSync(path.join(location, rootBucket, idmlFileBucket));
+      const isZipFileFolderExists = existsSync(path.join(location, rootBucket, zipFileBucket));
+      const isUnZipFileFolderExists = existsSync(path.join(location, rootBucket, unzipFileBucket));
 
       expect(isRootFolderExists).toBeTruthy();
       expect(isIdmlFileFolderExists).toBeTruthy();
@@ -47,7 +48,7 @@ function FileSystemGetFilePathsTest() {
     it('should return filePaths', () => {
       const filename = 'fakeFile';
       const filePaths = new FolderSystem(filename).getFilePaths();
-      const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } = GetFilePathsUtils();
+      const { location, rootBucket, idmlFileBucket, unzipFileBucket, zipFileBucket } = config;
       const expectedFilePaths = {
         fileCopierFilePaths: {
           sourcePath: path.join(location, rootBucket, idmlFileBucket, 'fakeFile.idml'),

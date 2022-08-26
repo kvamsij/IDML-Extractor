@@ -1,25 +1,28 @@
 import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
 import { FileRename } from '@src/libs/FileRename/FileRename';
+import { FolderSystemFilePaths } from '@src/libs/FolderSystem/IFolderSystem';
+import { CleanUp, CreateFolders, CreateTextFile, GetFilePaths } from '@src/__testUtils__/setUp';
 
-import { existsSync, rmSync } from 'fs';
-import { mkdir, writeFile } from 'fs/promises';
+import { existsSync } from 'fs';
 import { tmpdir } from 'os';
-import path from 'path';
 
 const SUCCESS_MSG = 'Successfully renamed file';
 
+const filename = 'fakeFile';
+let filePaths: FolderSystemFilePaths;
+
 beforeAll(async () => {
-  await mkdir(`${tmpdir()}/FakeFolder/test`, { recursive: true });
-  await writeFile(`${tmpdir()}/FakeFolder/fake.idml`, 'Sample test for fake idml file');
+  await CreateFolders(filename);
+  filePaths = GetFilePaths(filename);
 });
 
-afterAll(() => {
-  rmSync(`${tmpdir()}/FakeFolder`, { recursive: true });
+afterAll(async () => {
+  await CleanUp();
 });
 
 beforeEach(async () => {
-  if (!existsSync(`${tmpdir()}/FakeFolder/fake.idml`))
-    await writeFile(`${tmpdir()}/FakeFolder/fake.idml`, 'Sample test for fake idml file');
+  const { sourcePath } = filePaths.fileRenameFilePaths;
+  await CreateTextFile(sourcePath);
   jest.clearAllMocks();
 });
 
@@ -32,14 +35,15 @@ describe('FileRename', () => {
 function FileRenameClassImplementationTest() {
   describe('FileRename Implementation', () => {
     it('should rename filename with .zip as extension', async () => {
-      const fileRename = new FileRename(`${tmpdir()}/FakeFolder/fake.idml`);
+      const { sourcePath, destinationPath } = filePaths.fileRenameFilePaths;
+      const fileRename = new FileRename(sourcePath);
       await fileRename.fsRename();
-      const isZipExists = existsSync(`${tmpdir()}/FakeFolder/fake.zip`);
+      const isZipExists = existsSync(destinationPath);
       expect(isZipExists).toBeTruthy();
     });
 
     it('should called with given file path', async () => {
-      const sourcePath = path.join(`${tmpdir()}`, 'FakeFolder', 'fake.idml');
+      const { sourcePath } = filePaths.fileRenameFilePaths;
       const fileRename = new FileRename(sourcePath);
       try {
         await fileRename.fsRename();

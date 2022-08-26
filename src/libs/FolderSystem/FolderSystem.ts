@@ -1,13 +1,7 @@
-// eslint-disable-next-line eslint-comments/disable-enable-pair
-/* eslint-disable class-methods-use-this */
-
-import dotenv from 'dotenv';
 import { existsSync, mkdirSync } from 'fs';
-import { tmpdir } from 'os';
 import path from 'path';
+import { FolderSystemConfig } from '../Config/FolderSystemConfig';
 import { FilePaths, FolderSystemFilePaths, IFolderSystem } from './IFolderSystem';
-
-dotenv.config();
 
 export class FolderSystem implements IFolderSystem {
   private location: string;
@@ -20,12 +14,14 @@ export class FolderSystem implements IFolderSystem {
 
   private unzipFileBucket: string;
 
-  constructor(private filename: string) {
-    this.location = process.env.NODE_DEV === 'true' ? process.cwd() : tmpdir();
-    this.rootBucket = process.env.ROOT_BUCKET ?? 'rootBucket';
-    this.idmlFileBucket = process.env.IDML_FILE_BUCKET ?? 'idmls-files';
-    this.zipFileBucket = process.env.ZIP_FILE_BUCKET ?? 'zip-files';
-    this.unzipFileBucket = process.env.UNZIP_FILE_BUCKET ?? 'unzip-files';
+  constructor(private filename: string, private folderSystemConfig: FolderSystemConfig = new FolderSystemConfig()) {
+    const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } =
+      this.folderSystemConfig.getConfig();
+    this.location = location;
+    this.rootBucket = rootBucket;
+    this.idmlFileBucket = idmlFileBucket;
+    this.zipFileBucket = zipFileBucket;
+    this.unzipFileBucket = unzipFileBucket;
   }
 
   async configSetUp(): Promise<void> {

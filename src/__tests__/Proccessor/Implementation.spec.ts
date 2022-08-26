@@ -107,13 +107,9 @@ describe('Processor Implementation', () => {
   });
   it(`should be a folder with name idmlFiles in the unzipFolder`, async () => {
     loggerInfoSpy.mockImplementation();
-    // copyMethodSpy.mockResolvedValue('Successfully copied file');
-    // fsRenameMethodSpy.mockResolvedValue('Successfully rename file');
-    // unZipMethodSpy.mockResolvedValue('Successfully Extracted');
     try {
       await processor.process();
     } catch (error) {
-      console.log(error);
       //
     } finally {
       const folderPath = path.join(tmpdir(), process.env.ROOT_BUCKET ?? 'rootBucket', 'unzip-files', filename);

@@ -50,8 +50,7 @@ function ShouldBeAFolder() {
     } catch (error) {
       //
     } finally {
-      const folderPath = path.join(tmpdir(), process.env.ROOT_BUCKET ?? 'rootBucket', 'unzip-files', filename);
-      expect(existsSync(folderPath)).toBeTruthy();
+      expect(existsSync(filePaths.zipExtractorFilePaths.destinationPath)).toBeTruthy();
     }
   });
 }

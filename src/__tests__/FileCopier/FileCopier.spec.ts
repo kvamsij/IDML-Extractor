@@ -1,10 +1,10 @@
+import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
 import { FileCopier } from '@src/libs/FileCopier/FileCopier';
+import { FolderSystemFilePaths } from '@src/libs/FolderSystem/IFolderSystem';
+import { CleanUp, CreateFolders, CreateTextFile, GetFilePaths } from '@src/__testUtils__/setUp';
 import { existsSync } from 'fs';
 import { tmpdir } from 'os';
 import path from 'path';
-import { testSetUp } from '@src/__testUtils__/FileCopier/testSetUp';
-import { testCleanUp } from '@src/__testUtils__/FileCopier/testCleanUp';
-import { IDMLExtractorError } from '@src/libs/CustomError/IDMLExtractorError';
 
 enum MESSAGES {
   FILE_NOT_FOUND = 'File Not Found',
@@ -13,15 +13,27 @@ enum MESSAGES {
   DONE = 'Successfully copied file',
 }
 
-beforeAll(testSetUp());
+const filename = 'fake';
+let filePaths: FolderSystemFilePaths;
 
+beforeAll(async () => {
+  await CreateFolders(filename);
+  filePaths = GetFilePaths(filename);
+});
 beforeEach(() => {
   jest.clearAllMocks();
 });
 
-afterAll(testCleanUp());
+afterAll(async () => {
+  await CleanUp();
+});
 
 describe('FileCopier', () => {
+  beforeAll(async () => {
+    const { fileCopierFilePaths } = filePaths;
+    await CreateTextFile(fileCopierFilePaths.sourcePath);
+  });
+
   fileCopierInitializerTests();
   fileCopierErrorsTests();
   fileCopierImplementationTests();
@@ -29,16 +41,15 @@ describe('FileCopier', () => {
 
 function fileCopierImplementationTests() {
   describe('FileCopier implementation', () => {
-    const sourcePath = path.join(`${tmpdir()}/fake.idml`);
-    const destinationPath = path.join(`${tmpdir()}/FakeFolder/fakeIDML.idml`);
-
-    it('should execute copy method and return undefined', async () => {
-      const fileCopier = new FileCopier({ sourcePath, destinationPath });
-      const response = await fileCopier.copy();
-      expect(response).toBe(MESSAGES.DONE);
+    it('should execute copy method and return success message', async () => {
+      const { fileCopierFilePaths } = filePaths;
+      const fileCopier = new FileCopier(fileCopierFilePaths);
+      const response = fileCopier.copy();
+      await expect(response).resolves.toBe(MESSAGES.DONE);
     });
 
     it('should copy fake.idml file to FakeFolder', async () => {
+      const { destinationPath } = filePaths.fileCopierFilePaths;
       const isFileExists = existsSync(destinationPath);
       expect(isFileExists).toBeTruthy();
     });
@@ -48,15 +59,15 @@ function fileCopierImplementationTests() {
 function fileCopierErrorsTests() {
   describe('FileCopier Errors', () => {
     it('should throw an error if source file is not an idml file(.idml extension)', async () => {
-      const sourcePath = path.join(`${tmpdir()}/sample.txt`);
-      const destinationPath = sourcePath;
-      const fileCopier = new FileCopier({ sourcePath, destinationPath });
+      const { sourcePath, destinationPath } = filePaths.fileCopierFilePaths;
+      const fakeSourcePath = `${path.dirname(sourcePath)}/noFile.txt`;
+      const fileCopier = new FileCopier({ sourcePath: fakeSourcePath, destinationPath });
       const response = fileCopier.copy();
       await expect(response).rejects.toThrowError(new IDMLExtractorError(MESSAGES.MUST_HAVE_IDML_EXT));
     });
 
     it('should throw an error if destination file path not absolute', async () => {
-      const sourcePath = path.join(`${tmpdir()}/fake.idml`);
+      const { sourcePath } = filePaths.fileCopierFilePaths;
       const destinationPath = 'destinationPath';
       const fileCopier = new FileCopier({ sourcePath, destinationPath });
       const response = fileCopier.copy();

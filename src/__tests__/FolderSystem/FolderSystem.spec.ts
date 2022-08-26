@@ -45,7 +45,8 @@ function FileSystemConfigSetUpTest() {
 function FileSystemGetFilePathsTest() {
   describe('FolderSystem Implementation - get file paths', () => {
     it('should return filePaths', () => {
-      const filePaths = new FolderSystem('fakeFile').getFilePaths();
+      const filename = 'fakeFile';
+      const filePaths = new FolderSystem(filename).getFilePaths();
       const { location, rootBucket, idmlFileBucket, zipFileBucket, unzipFileBucket } = GetFilePathsUtils();
       const expectedFilePaths = {
         fileCopierFilePaths: {
@@ -57,8 +58,8 @@ function FileSystemGetFilePathsTest() {
           destinationPath: path.join(location, rootBucket, zipFileBucket, 'fakeFile.zip'),
         },
         zipExtractorFilePaths: {
-          sourcePath: path.join(location, rootBucket, zipFileBucket, 'fakeFile.zip'),
-          destinationPath: path.join(location, rootBucket, unzipFileBucket),
+          sourcePath: path.join(location, rootBucket, zipFileBucket, `${filename}.zip`),
+          destinationPath: path.join(location, rootBucket, unzipFileBucket, filename),
         },
       };
       expect(filePaths).toMatchObject(expectedFilePaths);

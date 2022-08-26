@@ -34,7 +34,7 @@ function FileRenameClassImplementationTest() {
     it('should rename filename with .zip as extension', async () => {
       const fileRename = new FileRename(`${tmpdir()}/FakeFolder/fake.idml`);
       await fileRename.fsRename();
-      const isZipExists = existsSync(`${tmpdir()}/FakeFolder/test/fake.zip`);
+      const isZipExists = existsSync(`${tmpdir()}/FakeFolder/fake.zip`);
       expect(isZipExists).toBeTruthy();
     });
 

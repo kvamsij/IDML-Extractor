@@ -7,10 +7,10 @@
     "start:dev": "nodemon",
     "start:prod": "node -r ts-node/register/transpile-only -r tsconfig-paths/register ./dist/src/index.js",
     "build": "tsc -p tsconfig.prod.json",
-    "test": "jest",
+    "test": "jest --runInBand --verbose",
     "test:watch": "jest --watch",
     "test:no-watch": "jest --watch-false",
-    "test:coverage": "jest --coverage",
+    "test:coverage": "jest --coverage --runInBand",
     "prepare": "husky install",
     "commit": "cz"
   },

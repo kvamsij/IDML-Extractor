@@ -12,7 +12,7 @@ const filename = 'fakeFile';
 let filePaths: FolderSystemFilePaths;
 
 beforeAll(async () => {
-  await CreateFolders(filename);
+  await CreateFolders();
   filePaths = GetFilePaths(filename);
 });
 

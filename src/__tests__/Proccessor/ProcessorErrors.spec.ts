@@ -18,7 +18,7 @@ let mocks: GetClassInstanceAndMocksResults['mocks'];
 
 beforeAll(async () => {
   filePaths = GetFilePaths(filename);
-  await CreateFolders(filename);
+  await CreateFolders();
   await CreateZipFile(filePaths.fileCopierFilePaths.sourcePath);
 });
 

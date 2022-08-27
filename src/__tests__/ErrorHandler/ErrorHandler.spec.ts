@@ -9,7 +9,7 @@ let filePaths: FolderSystemFilePaths;
 let errorHandlerFilePaths: ErrorHandlerFilePaths;
 
 beforeAll(async () => {
-  await CreateFolders(filename);
+  await CreateFolders();
   filePaths = GetFilePaths(filename);
 });
 

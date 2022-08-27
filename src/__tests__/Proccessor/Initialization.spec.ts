@@ -15,7 +15,7 @@ let processor: GetClassInstanceAndMocksResults['processor'];
 
 beforeAll(async () => {
   filePaths = GetFilePaths(filename);
-  await CreateFolders(filename);
+  await CreateFolders();
   await CreateZipFile(filePaths.fileCopierFilePaths.sourcePath);
   const mocksAndClassInstance = GetClassInstanceAndMocks(filePaths);
   processor = mocksAndClassInstance.processor;

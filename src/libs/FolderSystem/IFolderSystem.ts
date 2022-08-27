@@ -10,6 +10,5 @@ export type FolderSystemFilePaths = {
 };
 
 export interface IFolderSystem {
-  configSetUp(): Promise<void>;
   getFilePaths(): FolderSystemFilePaths;
 }

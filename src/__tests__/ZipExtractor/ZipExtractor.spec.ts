@@ -9,7 +9,7 @@ const filename = 'fakeZip';
 let filePaths: FolderSystemFilePaths;
 beforeAll(async () => {
   filePaths = GetFilePaths(filename);
-  await CreateFolders(filename);
+  await CreateFolders();
   await CreateZipFile(filePaths.zipExtractorFilePaths.sourcePath);
 });
 afterEach(() => jest.clearAllMocks());

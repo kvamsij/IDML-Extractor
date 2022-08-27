@@ -1,13 +1,13 @@
-import { FolderSystemConfig, FolderSystemConfigProperties } from '@src/libs/Config/FolderSystemConfig';
+import { ConfigProperties } from '@src/libs/Config/DefaultConfig';
+import { FolderSystemConfig } from '@src/libs/Config/FolderSystemConfig';
 import { FolderSystem } from '@src/libs/FolderSystem/FolderSystem';
-import { existsSync } from 'fs';
 import { rm } from 'fs/promises';
 import path from 'path';
 
-let config: FolderSystemConfigProperties;
+let config: ConfigProperties;
 
 beforeAll(() => {
-  config = new FolderSystemConfig().getConfig();
+  config = new FolderSystemConfig().getConfigProperties();
 });
 
 afterEach(() => {
@@ -15,33 +15,14 @@ afterEach(() => {
 });
 
 afterAll(async () => {
-  const { location, rootBucket } = new FolderSystemConfig().getConfig();
+  const { location, rootBucket } = new FolderSystemConfig().getConfigProperties();
   await rm(path.join(location, rootBucket), { recursive: true });
 });
 
 describe('FolderSystem', () => {
   FileSystemInitializationTest();
-  FileSystemConfigSetUpTest();
   FileSystemGetFilePathsTest();
 });
-
-function FileSystemConfigSetUpTest() {
-  describe('FolderSystem Implementation - config set up', () => {
-    it('should create folder structure', async () => {
-      await new FolderSystem('fakeFile').configSetUp();
-      const { location, rootBucket, idmlFileBucket, unzipFileBucket, zipFileBucket } = config;
-      const isRootFolderExists = existsSync(path.join(location, rootBucket));
-      const isIdmlFileFolderExists = existsSync(path.join(location, rootBucket, idmlFileBucket));
-      const isZipFileFolderExists = existsSync(path.join(location, rootBucket, zipFileBucket));
-      const isUnZipFileFolderExists = existsSync(path.join(location, rootBucket, unzipFileBucket));
-
-      expect(isRootFolderExists).toBeTruthy();
-      expect(isIdmlFileFolderExists).toBeTruthy();
-      expect(isZipFileFolderExists).toBeTruthy();
-      expect(isUnZipFileFolderExists).toBeTruthy();
-    });
-  });
-}
 
 function FileSystemGetFilePathsTest() {
   describe('FolderSystem Implementation - get file paths', () => {
@@ -81,14 +62,6 @@ function FileSystemInitializationTest() {
       jest.spyOn(folderSystem, 'getFilePaths').mockImplementation(mockGetFilePaths);
       folderSystem.getFilePaths();
       expect(mockGetFilePaths).toBeCalledTimes(1);
-    });
-
-    it('should call configSetUp', () => {
-      const folderSystem = new FolderSystem('fakeFileName');
-      const mockSetUp = jest.fn();
-      jest.spyOn(folderSystem, 'configSetUp').mockImplementation(mockSetUp);
-      folderSystem.configSetUp();
-      expect(mockSetUp).toBeCalledTimes(1);
     });
   });
 }

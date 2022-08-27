@@ -1,3 +1,4 @@
+import { FolderSystemConfig } from '@src/libs/Config/FolderSystemConfig';
 import { ErrorHandler } from '@src/libs/ErrorHandler/ErrorHandler';
 import { FileCopier } from '@src/libs/FileCopier/FileCopier';
 import { FileRename } from '@src/libs/FileRename/FileRename';
@@ -27,8 +28,8 @@ export function GetFilePaths(filename: string): FolderSystemFilePaths {
   return folderSystem.getFilePaths();
 }
 
-export async function CreateFolders(filename: string): Promise<void> {
-  await new FolderSystem(filename).configSetUp();
+export async function CreateFolders(): Promise<void> {
+  new FolderSystemConfig().configSetUp();
 }
 
 export async function CreateZipFile(filePath: string) {

@@ -17,7 +17,7 @@ const filename = 'fake';
 let filePaths: FolderSystemFilePaths;
 
 beforeAll(async () => {
-  await CreateFolders(filename);
+  await CreateFolders();
   filePaths = GetFilePaths(filename);
 });
 beforeEach(() => {
